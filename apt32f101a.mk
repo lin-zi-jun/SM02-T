@@ -5,12 +5,12 @@
 ## BuildSet
 ProjectName            :=apt32f101a
 ConfigurationName      :=BuildSet
-WorkspacePath          :=C:/Users/Administrator/AppData/Roaming/cdk/default_workspace4/
+WorkspacePath          :=C:/Users/Administrator/AppData/Roaming/cdk/default_workspace10/
 ProjectPath            :=D:/SM02-T/
 IntermediateDirectory  :=Obj
 OutDir                 :=$(IntermediateDirectory)
 User                   :=Administrator
-Date                   :=03/07/2019
+Date                   :=06/07/2019
 CDKPath                :=D:/C-Sky/C-Sky Development Kit
 LinkerName             :=csky-elfabiv2-gcc
 LinkerNameoption       :=

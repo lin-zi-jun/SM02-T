@@ -29,7 +29,17 @@
 #include "apt32f101_tkey.h"
 
 #include <stdarg.h>
-/* defines -------------------------------------------------------------------*/
+
+
+#define  clk_H; GPIO_Write_High(GPIOB0,1);
+#define  dio_H; GPIO_Write_High(GPIOB0,0);
+#define  stb_H; GPIO_Write_High(GPIOA0,0);
+
+#define  clk_L; GPIO_Write_Low(GPIOB0,1);
+#define  dio_L; GPIO_Write_Low(GPIOB0,0);
+#define  stb_L; GPIO_Write_Low(GPIOA0,0);
+
+
 U16_T Key_Map_bk=0;
 /* externs--------------------------------------------------------------------*/
 extern void APT32F101_init(void);
@@ -50,13 +60,8 @@ void TK_PRGM(void)
 	  {
 		  if (Key_Map==Key_Map_bk)return;
 		  Key_Map_bk=Key_Map;
-		  switch (Key_Map)
-		  {
-			  case 0x01:break;
-			  case 0x02:break;
-			  case 0x04:break;
-			  case 0x08:break;
-		  }
+		  uart1_printf("Key_Map:%d\r\n",Key_Map);
+		  
 	  }
 	  else 
 	  {
@@ -64,7 +69,8 @@ void TK_PRGM(void)
 	  }
 }
 
-char Print_Buf[256];
+
+char Print_Buf[64];
 void uart1_printf(char *fmt,...)
 {
 	unsigned char len;
@@ -77,72 +83,114 @@ void uart1_printf(char *fmt,...)
     va_end(ap);
 }
 
-
-void uartReceive(void)
+void tm1616write(unsigned char wr_date)
 {
-	if((CSP_UART_GET_ISR(UART0)))
+	unsigned char i;
+	stb_L;
+	nop;
+	for(i = 0; i < 8; i++)
 	{
-		CSP_UART_SET_ISR(UART1,UART_RX_INT_S);
-		RxDataFlag = TRUE;
-		char c = UART_ReturnRxByte(UART0);
-		UARTTxByte(UART0,(U8_T*) c);
+		clk_L;
+		nop;
+		if(wr_date&0x01 != 0)
+		{
+			dio_H;
+		}
+		else
+		{
+			dio_L;
+		}
+		nop;
+		clk_H;
+		nop;
+		wr_date = wr_date >> 1;
+	}	
+}
+
+void tm1616show1(unsigned char data)
+{
+	unsigned char j;
+	clk_H; 
+	dio_H;
+	stb_H; 
+	
+	
+//	tm1616write(0x02);  			//显示模式
+//	stb_H;							
+	tm1616write(0x44);  			//数据命令设置
+	stb_H;	
+
+
+	tm1616write(0xC0);			//设置显示地址1  00
+	tm1616write(data); 		
+	stb_H;			
+	
+	tm1616write(0x8f);				//控制命令设置，设置显示开、显示脉冲宽度4/16  1000 1010
+	stb_H;
+}
+
+void tm1616show2(unsigned char data)
+{
+	unsigned char j;
+	clk_H; 
+	dio_H;
+	stb_H; 
+	
+	tm1616write(0x00);  			//显示模式
+	stb_H;							
+	tm1616write(0x44);  			//数据命令设置
+	stb_H;	
+
+
+	tm1616write(0xC2);			//设置显示地址1  00
+	tm1616write(data); 		
+	stb_H;	
+
+
+	
+	
+	tm1616write(0x8f);				//控制命令设置，设置显示开、显示脉冲宽度4/16  1000 1010
+	stb_H;
+}
+
+int num;
+//char arr1[8]={0x7e,0x7d,0x7b,0x77,0x6f,0x5f,0x3f,0x7f};
+//char arr2[8]={0x00,0x01,0x02,0x04,0x8,0x16,0x32,0x64};
+
+char arr1[8]={0x00,0x01,0x03,0x07,0x0F,0x1F,0x3F,0x7f};
+char arr2[8]={0x00,0x01,0x02,0x04,0x8,0x10,0x20,0x40};
+
+int main(void)
+{
+	
+	
+	APT32F101_init();
+	
+	GPIO_Init(GPIOB0,0,0); 
+	GPIO_Init(GPIOB0,1,0); 
+	GPIO_Init(GPIOA0,0,0); 
+	
+	char i = 0;
+	int j = 0;
+    while(1)
+	{
+//		num++;
+//		if(num%10000==0){
+//			GPIO_Reverse(GPIOA0,5);
+//			GPIO_Reverse(GPIOB0,2);
+//			GPIO_Reverse(GPIOB0,3);
+//			GPIO_Reverse(GPIOC0,0);
+//			
+//
+//		}
+		
+		for(i=0;i<8;i++){	
+			delay_nms(5000);
+			tm1616show1(arr1[i]);
+			tm1616show2(arr2[i]);
+		}
 	}
 }
 
-#define RLY1_OUT; GPIO_Init(GPIOB0,3,1);
-#define RLY2_OUT; GPIO_Init(GPIOB0,2,1);
-#define PWM1_OUT; GPIO_Init(GPIOA0,5,1);
-#define PWM2_OUT; GPIO_Init(GPIOC0,0,1);
-
-#define RLY1_PullHigh;	GPIO_PullHigh_Init(GPIOB0,3);
-#define RLY2_PullHigh;	GPIO_PullHigh_Init(GPIOB0,2);
-#define PWM1_PullHigh;	GPIO_PullHigh_Init(GPIOA0,5);
-#define PWM2_PullHigh;	GPIO_PullHigh_Init(GPIOC0,0);
-
-#define RLY1_HIGH; 		GPIO_Set_Value(GPIOB0,3,1);
-#define RLY2_HIGH; 		GPIO_Set_Value(GPIOB0,2,1);
-#define PWM1_HIGH; 		GPIO_Set_Value(GPIOA0,5,1);
-#define PWM2_HIGH; 		GPIO_Set_Value(GPIOC0,0,1);
-
-
-
-void GPIO_PWM_RLY_Init(void)
-{
-	
-	RLY1_OUT; 
-	RLY2_OUT;
-	PWM1_OUT;
-	PWM2_OUT;
-	
-	RLY1_PullHigh;
-	RLY2_PullHigh;
-	PWM1_PullHigh;
-	PWM2_PullHigh;
-	
-	RLY1_HIGH;
-	RLY2_HIGH;
-	PWM1_HIGH;
-	PWM2_HIGH;
-}
-
-/*************************************************************/
-//main
-/*************************************************************/
-int timer;
-int main(void)
-{
-	APT32F101_init();
-	UART_CONFIG();
-	GPIO_PWM_RLY_Init();
-	
-    while(1)
-	{
-//		TK_PRGM();
-		timer++;
-		if(timer%100000==0)
-		uart1_printf("%s\r\n","$MCU");
-    }
-}
-/******************* (C) COPYRIGHT 2016 APT Chip *****END OF FILE****/
 
 

@@ -471,10 +471,10 @@ extern U32_T TK_Read_MISR(void);
 extern void TK_Clear_ICR(U32_T ICR);
 extern void TK_Negative_rebuild(void);
 extern void TK_Positive_rebuild(void);
-extern void Read_Sampling(void);
-extern void Read_Baseline(void);
-extern void Read_Offset(void);
-extern void Read_Keymap(void);
+extern void Read_Sampling(void);				//读取 Touch key 实时采样值
+extern void Read_Baseline(void);				//读取 Touch key 原始值
+extern void Read_Offset(void);					//读取 Touch key 差值 offset=daseline-sampling
+extern void Read_Keymap(void);					//读取 Touch key 按键值,Key_Map!=0 时代表有按键触发
 extern void TK_Init(void);
 extern void TK0_Int_Enable(void);
 extern void TK1_Int_Enable(void);

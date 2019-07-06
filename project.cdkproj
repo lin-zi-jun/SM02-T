@@ -277,8 +277,13 @@
     </BuildConfig>
   </BuildConfigs>
   <DebugSessions>
-    <watchExpressions>Sampling_Data;Baseline_Data;Offset_Data;Key_Map</watchExpressions>
+    <watchExpressions/>
     <memoryExpressions>;;;</memoryExpressions>
     <statistics>E0011100;10;MHZ</statistics>
+    <peripheralTabs/>
+    <WatchDisplayFormat>0</WatchDisplayFormat>
+    <LocalDisplayFormat>0</LocalDisplayFormat>
+    <peripheralsDisFormat/>
+    <debugLayout/>
   </DebugSessions>
 </Project>

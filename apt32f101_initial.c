@@ -149,18 +149,10 @@ void UART_CONFIG(void)
 {
     UART_DeInit();                                                              //clear all UART Register
     UART_IO_Init(IO_UART1 ,1);                                                //use UART0 group 1
-	 UARTInit(UART1,174);
-//    UARTInitRxTxIntEn(UART0,174);	                                            //baudrate=sysclock/174=115200
-//    UART0_Int_Enable();														    //uart0 INT Enable
-//    UART0_WakeUp_Enable();                                                      //uart0 wakeup Enable*/
-	
-	
-    
-//    UART_IO_Init(IO_UART1 ,1);                                                  //use UART1 group 1
-//    UARTInitRxTxIntEn(UART1,174);	                                            //baudrate=sysclock/174=115200
-//    UART1_Int_Enable();														    //uart1 INT Enable
-//    UART1_WakeUp_Enable();                                                      //uart1 wakeup Enable
-//    UARTTxByte(UART1,0X55);														//send 0x55 test
+	UARTInit(UART1,174);
+	UARTInitRxTxIntEn(UART1,174);	                                            //baudrate=sysclock/174=115200
+	UART1_Int_Enable();														    //uart0 INT Enable
+	UART1_WakeUp_Enable();                                                      //uart0 wakeup Enable*/
 }
 /*************************************************************/
 //gtc0 Functions
@@ -410,7 +402,7 @@ void APT32F101_init(void)
     //ADC12_CONFIG();                                               //ADC initial 
     //I2C_MASTER_CONFIG();                                          //I2C harware master initial 
 	//I2C_SLAVE_CONFIG();                                           //I2C harware slave initial 
-    //UART_CONFIG();                                                //UART initial 
+    UART_CONFIG();                                                //UART initial 
 	TK_CONFIG();													//TK initial 
 }
 /******************* (C) COPYRIGHT 2016 APT Chip *****END OF FILE****/

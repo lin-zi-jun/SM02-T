@@ -280,11 +280,11 @@ U16_T UARTRxByte(CSP_UART_T *uart,U16_T *Rxdata_u16)
 //EntryParameter:UART0,UART1
 //ReturnValue:(uart)->DATA
 /*************************************************************/
-U8_T UART_ReturnRxByte(CSP_UART_T *uart)
+U8_T UART_ReturnRxByte(CSP_UART_T *uart)		//接收字节
 {
-	RxDataFlag = FALSE;
-	while(RxDataFlag != TRUE);
-	return CSP_UART_GET_DATA(uart);
+	RxDataFlag = FALSE;				
+	while(RxDataFlag != TRUE);               	//等待为true
+	return CSP_UART_GET_DATA(uart);             //返回字节数据
 }
 
 /*************************************************************/

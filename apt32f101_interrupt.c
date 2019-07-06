@@ -452,14 +452,11 @@ void EXI1IntHandler(void)
 void UART0IntHandler(void) 
 {
     // ISR content ...
-	if ((UART0->ISR&UART_RX_INT_S)==UART_RX_INT_S)
+	if ((UART0->ISR&UART_RX_INT_S)==UART_RX_INT_S)    //接收中断触发
 	{
-		
-		
-//		uart0_printf("%s\r\n",c);
 		UART0->ISR=UART_RX_INT_S;
 		RxDataFlag = TRUE;
-		UART_ReturnRxByte(UART0);
+
 		
 	}
 	if( (UART0->ISR&UART_TX_INT_S)==UART_TX_INT_S ) 
@@ -490,7 +487,8 @@ void UART1IntHandler(void)
 	if ((UART1->ISR&UART_RX_INT_S)==UART_RX_INT_S)
 	{
 		UART1->ISR=UART_RX_INT_S;
-		RxDataFlag = TRUE;   
+		RxDataFlag = TRUE; 
+//		uart1_printf("R\r\n");
 	}
 	if( (UART1->ISR&UART_TX_INT_S)==UART_TX_INT_S ) 
     {

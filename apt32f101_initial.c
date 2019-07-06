@@ -401,6 +401,7 @@ void APT32F101_init(void)
     //ADC12_CONFIG();                                               //ADC initial 
     //I2C_MASTER_CONFIG();                                          //I2C harware master initial 
 	//I2C_SLAVE_CONFIG();                                           //I2C harware slave initial 
+	
     UART_CONFIG();                                                 //UART initial 
 //	TK_CONFIG();													//TK initial 
 }

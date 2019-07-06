@@ -32,9 +32,9 @@ volatile unsigned int CNTA_INTFlag;				//CNTA interrupt flag
 /*************************************************************/  
 void COUNT_DeInit(void)
 {
-    CA0->CADATAH = CA_RESET_VALUE;
-    CA0->CADATAL = CA_RESET_VALUE;
-    CA0->CACON   = CA_RESET_VALUE;
+    CA0->CADATAH = CA_RESET_VALUE;   //数据高位
+    CA0->CADATAL = CA_RESET_VALUE;	 //数据低位
+    CA0->CACON   = CA_RESET_VALUE;	
     CA0->INTMASK = CA_RESET_VALUE;
 }
 

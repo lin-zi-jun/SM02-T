@@ -84,7 +84,7 @@ typedef enum
   */
 typedef enum
 {
-    ENVELOPE_0    =	(0x00ul << 24),             //REM output signal selection bit
+    ENVELOPE_0    =	(0x00ul << 24),             //REM output signal selection bit 0: 选择载波信号为输出
     ENVELOPE_1    =	(0x01ul << 24),
 }CA_ENVELOPE_TypeDef;
 /**
@@ -92,7 +92,7 @@ typedef enum
   */
 typedef enum
 {
-    PENDREM_OFF  =	((0 & 0x03ul)<<21),
+    PENDREM_OFF  =	((0 & 0x03ul)<<21),  //00/11: 禁止CARRIERON的硬件自动触发
     PENDREM_1    =	((1 & 0x03ul)<<21),
     PENDREM_2    =	((2 & 0x03ul)<<21),
 }CA_PENDREM_TypeDef;
@@ -101,7 +101,7 @@ typedef enum
   */
 typedef enum
 {
-    MATCHREM_OFF  =	((0 & 0x03ul)<<19),
+    MATCHREM_OFF  =	((0 & 0x03ul)<<19),  //00/11: 禁止CARRIERON的硬件自动触发
     MATCHREM_1    =	((1 & 0x03ul)<<19),
     MATCHREM_2    =	((2 & 0x03ul)<<19),
 }CA_MATCHREM_TypeDef;
@@ -110,7 +110,7 @@ typedef enum
   */
 typedef enum
 {
-   REMSTAT_0   =	((0 & 0x01ul)<<23),
+   REMSTAT_0   =	((0 & 0x01ul)<<23),  //当关闭载波时REM的输出状态  0: 低
    REMSTAT_1   =	((1 & 0x01ul)<<23),
 }CA_REMSTAT_TypeDef;
 

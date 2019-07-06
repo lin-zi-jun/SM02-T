@@ -109,7 +109,7 @@
   </VirtualDirectory>
   <MonitorProgress>
     <DebugLaunch>103</DebugLaunch>
-    <FlashOperate>111</FlashOperate>
+    <FlashOperate>112</FlashOperate>
   </MonitorProgress>
   <BuildConfigs>
     <BuildConfig Name="BuildSet">

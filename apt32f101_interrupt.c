@@ -434,6 +434,7 @@ void EXI0IntHandler(void)
 //EntryParameter:NONE
 //ReturnValue:NONE
 /*************************************************************/
+int num=0;
 void EXI1IntHandler(void) 
 {
     // ISR content ...
@@ -441,7 +442,10 @@ void EXI1IntHandler(void)
 	{
 		SYSCON->EXICR = EXI_PIN1;
 		EXI_INTFlag[1]=1;
-		uart1_printf("EXI_INTFlag\r\n");
+		num++;
+//		uart1_printf("%d\r\n",num);
+		GPIO_Reverse(GPIOA0,6);
+		TIMER_INIT();			//	中断触发 初始化计数
 	}
 }
 
@@ -627,8 +631,10 @@ void EXI9to13IntHandler(void)
 /*************************************************************/
 void CNTAIntHandler(void) 
 {
-    // ISR content ...
-	CNTA_INTFlag=1;
+     tim1_int_cb();      //发出50us脉冲信号
+	 COUNTA_Stop();		 //停止计数器
+	 CNTA_INTFlag=1;
+//	 GPIO_Reverse(GPIOA0,6);
 }
 
 /*************************************************************/

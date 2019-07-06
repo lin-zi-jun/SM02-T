@@ -96,7 +96,7 @@ extern void UARTTransmit(CSP_UART_T *uart,U16_T *sourceAddress_u16,U16_T length_
 
 extern void UARTTransmitLin(CSP_UART_T *uart,U8_T *sourceAddress_u16,U8_T length_u16);
 
-extern U16_T UARTRxByte(CSP_UART_T *uart,U16_T *Rxdata_u16);
+extern U16_T UARTRxByte(CSP_UART_T *uart,char *Rxdata);
 extern U8_T UART_ReturnRxByte(CSP_UART_T *uart);
 extern U16_T UARTReceive(CSP_UART_T *uart,U16_T *destAddress_u16,U16_T length_u16);	
 extern void UART_DeInit(void);

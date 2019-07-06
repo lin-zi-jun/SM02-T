@@ -39,36 +39,14 @@
 #define  dio_L; GPIO_Write_Low(GPIOB0,0);
 #define  stb_L; GPIO_Write_Low(GPIOA0,0);
 
+#define ROW_ONE  0x01
+#define ROW_TWO  0x02
 
-U16_T Key_Map_bk=0;
+int num;
+char light[8]={0x00,0x01,0x03,0x07,0x0F,0x1F,0x3F,0x7f};
 /* externs--------------------------------------------------------------------*/
 extern void APT32F101_init(void);
-extern S32_T Sampling_Data[16];									//sampling data
-extern S32_T Baseline_Data[16];									//baseline data
-extern S32_T Offset_Data[16];									//offset data 
-extern U16_T Key_Map;											//touch key map
-extern volatile uint8_t I2CWrBuffer[BUFSIZE];
-extern volatile uint8_t I2CRdBuffer[BUFSIZE];
 /* Functions-------------------------------------------------------------------*/
-void TK_PRGM(void)
-{
-	  //Read_Sampling();				//read sampling data for testing
-	  //Read_Baseline();				//read daseline data for testing
-	  //Read_Offset();					//read offset for testing,offset=daseline-sampling	
-	  Read_Keymap();					//read key data,if Key_Map!=0, touch key triggered
-	  if (Key_Map!=0)
-	  {
-		  if (Key_Map==Key_Map_bk)return;
-		  Key_Map_bk=Key_Map;
-		  uart1_printf("Key_Map:%d\r\n",Key_Map);
-		  
-	  }
-	  else 
-	  {
-		 Key_Map_bk=0; 
-	  }
-}
-
 
 char Print_Buf[64];
 void uart1_printf(char *fmt,...)
@@ -83,7 +61,7 @@ void uart1_printf(char *fmt,...)
     va_end(ap);
 }
 
-void tm1616write(unsigned char wr_date)
+void tm1616write(U8_T wr_date)
 {
 	unsigned char i;
 	stb_L;
@@ -107,29 +85,7 @@ void tm1616write(unsigned char wr_date)
 	}	
 }
 
-void tm1616show1(unsigned char data)
-{
-	unsigned char j;
-	clk_H; 
-	dio_H;
-	stb_H; 
-	
-	
-//	tm1616write(0x02);  			//显示模式
-//	stb_H;							
-	tm1616write(0x44);  			//数据命令设置
-	stb_H;	
-
-
-	tm1616write(0xC0);			//设置显示地址1  00
-	tm1616write(data); 		
-	stb_H;			
-	
-	tm1616write(0x8f);				//控制命令设置，设置显示开、显示脉冲宽度4/16  1000 1010
-	stb_H;
-}
-
-void tm1616show2(unsigned char data)
+void tm1616show(U8_T light_data,U8_T row)
 {
 	unsigned char j;
 	clk_H; 
@@ -141,54 +97,82 @@ void tm1616show2(unsigned char data)
 	tm1616write(0x44);  			//数据命令设置
 	stb_H;	
 
-
-	tm1616write(0xC2);			//设置显示地址1  00
-	tm1616write(data); 		
-	stb_H;	
-
-
-	
+	if(row==ROW_ONE){
+		tm1616write(0xC0);			//设置显示地址1  00
+		tm1616write(light_data); 		
+		stb_H;		
+	}else if(row==ROW_TWO){
+		tm1616write(0xC2);			//设置显示地址1  00
+		tm1616write(light_data); 		
+		stb_H;	
+	}else{}
 	
 	tm1616write(0x8f);				//控制命令设置，设置显示开、显示脉冲宽度4/16  1000 1010
 	stb_H;
 }
 
-int num;
-//char arr1[8]={0x7e,0x7d,0x7b,0x77,0x6f,0x5f,0x3f,0x7f};
-//char arr2[8]={0x00,0x01,0x02,0x04,0x8,0x16,0x32,0x64};
-
-char arr1[8]={0x00,0x01,0x03,0x07,0x0F,0x1F,0x3F,0x7f};
-char arr2[8]={0x00,0x01,0x02,0x04,0x8,0x10,0x20,0x40};
+void PC_TO_MCU(void){
+	char c = 0;
+	char a = UARTRxByte(UART1,&c);
+	
+	if(a==TRUE){
+		a=FALSE;
+		uart1_printf("%c",c);
+		
+		switch(c)
+		{
+			case '0':
+				tm1616show(light[0],ROW_ONE);
+				tm1616show(light[0],ROW_TWO);
+			break;
+			
+			case '1':
+				tm1616show(light[1],ROW_ONE);
+			break;
+			
+			case '2':
+				tm1616show(light[2],ROW_ONE);
+			break;
+			
+			case '3':
+				tm1616show(light[3],ROW_ONE);
+			break;
+			
+			case '4':
+				tm1616show(light[4],ROW_ONE);
+			break;
+			
+			case '5':
+				tm1616show(light[5],ROW_ONE);
+			break;
+			
+			case '6':
+				tm1616show(light[6],ROW_ONE);
+			break;
+			
+			case '7':
+				tm1616show(light[7],ROW_ONE);
+			break;
+			
+			default:
+			break;
+		}
+		
+	}
+	
+}
 
 int main(void)
 {
-	
-	
 	APT32F101_init();
 	
 	GPIO_Init(GPIOB0,0,0); 
 	GPIO_Init(GPIOB0,1,0); 
 	GPIO_Init(GPIOA0,0,0); 
 	
-	char i = 0;
-	int j = 0;
     while(1)
 	{
-//		num++;
-//		if(num%10000==0){
-//			GPIO_Reverse(GPIOA0,5);
-//			GPIO_Reverse(GPIOB0,2);
-//			GPIO_Reverse(GPIOB0,3);
-//			GPIO_Reverse(GPIOC0,0);
-//			
-//
-//		}
-		
-		for(i=0;i<8;i++){	
-			delay_nms(5000);
-			tm1616show1(arr1[i]);
-			tm1616show2(arr2[i]);
-		}
+		PC_TO_MCU();
 	}
 }
 

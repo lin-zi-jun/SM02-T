@@ -35,11 +35,11 @@ volatile U8_T UART1_INTFlag[4];        //UART interrupt flag
 /*************************************************************/
 void UART_DeInit(void)
 {
-    UART0->DATA = UART_RESET_VALUE;
-    UART0->SR   = UART_RESET_VALUE;
-    UART0->CTRL = UART_RESET_VALUE;
-    UART0->ISR  = UART_RESET_VALUE;
-    UART0->BRDIV =UART_RESET_VALUE;
+    UART0->DATA = UART_RESET_VALUE;		//数据寄存器
+    UART0->SR   = UART_RESET_VALUE;		//状态寄存器  发送接收置位，溢出置位
+    UART0->CTRL = UART_RESET_VALUE;	    //控制寄存器 TX RX
+    UART0->ISR  = UART_RESET_VALUE;		//中断状态寄存器 
+    UART0->BRDIV =UART_RESET_VALUE;    //波特率分频寄存器
     UART1->DATA = UART_RESET_VALUE;
     UART1->SR   = UART_RESET_VALUE;
     UART1->CTRL = UART_RESET_VALUE;
@@ -165,9 +165,9 @@ void UART_IO_Init(UART_NUM_TypeDef IO_UART_NUM , U8_T UART_IO_G)
 void UARTInit(CSP_UART_T *uart,U16_T baudrate_u16)
 {
    // Set Transmitter Enable
-   CSP_UART_SET_CTRL(uart, UART_TX | UART_RX);
+   CSP_UART_SET_CTRL(uart, UART_TX | UART_RX);   //使能发送接收
    // Set Baudrate
-   CSP_UART_SET_BRDIV(uart, baudrate_u16);
+   CSP_UART_SET_BRDIV(uart, baudrate_u16);       //设置波特率
 
 }
 /*************************************************************/
@@ -260,7 +260,7 @@ void UARTTransmitLin(CSP_UART_T *uart,U8_T *sourceAddress_u16,U8_T length_u16)
 //EntryParameter:UART0,UART1,Rxdata_u16
 //ReturnValue:NONE
 /*************************************************************/
-U16_T UARTRxByte(CSP_UART_T *uart,U16_T *Rxdata_u16)
+U16_T UARTRxByte(CSP_UART_T *uart,char *Rxdata)
 {
 	unsigned int  DataI;
 
@@ -270,7 +270,7 @@ U16_T UARTRxByte(CSP_UART_T *uart,U16_T *Rxdata_u16)
 		return FALSE;
 	else
 	{
-		*Rxdata_u16 = CSP_UART_GET_DATA(uart);
+		*Rxdata = CSP_UART_GET_DATA(uart);
 	    return TRUE;
 	}
 }

@@ -441,6 +441,7 @@ void EXI1IntHandler(void)
 	{
 		SYSCON->EXICR = EXI_PIN1;
 		EXI_INTFlag[1]=1;
+		uart1_printf("EXI_INTFlag\r\n");
 	}
 }
 

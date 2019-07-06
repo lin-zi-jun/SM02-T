@@ -154,6 +154,11 @@ void PC_TO_MCU(void){
 				tm1616show(light[7],ROW_ONE);
 			break;
 			
+			case '8':
+				GPIO_Reverse(GPIOA0,5);
+			break;
+			
+			
 			default:
 			break;
 		}
@@ -162,13 +167,31 @@ void PC_TO_MCU(void){
 	
 }
 
+void EXTI_PC01_INIT(void){
+	GPIO_Init(GPIOC0,1,0); 
+	GPIO_PullLow_Init(GPIOC0,0);
+	
+	GPIO_IntGroup_Set(PC0);
+	GPIOC0_EXI_Init(EXI1);
+	EXTI_trigger_CMD(ENABLE,EXI_PIN1,_EXIFT);
+	EXTI_trigger_CMD(ENABLE,EXI_PIN1,_EXIRT);
+	EXTI_interrupt_CMD(ENABLE,EXI_PIN1);
+	GPIO_EXTI_interrupt(GPIOC0,0b00000000000010); 
+	EXI1_Int_Enable(); 
+	EXI1_WakeUp_Enable(); 
+}
+
 int main(void)
 {
 	APT32F101_init();
 	
 	GPIO_Init(GPIOB0,0,0); 
 	GPIO_Init(GPIOB0,1,0); 
-	GPIO_Init(GPIOA0,0,0); 
+	GPIO_Init(GPIOA0,0,0);
+	GPIO_Init(GPIOA0,5,0);
+ 
+
+	
 	
     while(1)
 	{

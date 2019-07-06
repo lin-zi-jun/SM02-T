@@ -106,9 +106,9 @@ void GPIO_Init(CSP_GPIO_T *GPIOx,uint8_t PinNum,GPIO_Dir_TypeDef Dir)
         case 6:data_temp=0xf0ffffff;GPIO_Pin=24;break;
         case 7:data_temp=0x0fffffff;GPIO_Pin=28;break;
     }
-        if (Dir)
+        if (Dir)		//输入或输出
         {
-          (GPIOx)->CONLR =((GPIOx)->CONLR & data_temp) | 1<<GPIO_Pin;
+          (GPIOx)->CONLR =((GPIOx)->CONLR & data_temp) | 1<<GPIO_Pin;			//低位控制寄存器
         }
         else
         {
@@ -130,7 +130,7 @@ void GPIO_Init(CSP_GPIO_T *GPIOx,uint8_t PinNum,GPIO_Dir_TypeDef Dir)
     } 
       if (Dir)
         {
-        (GPIOx)->CONHR = ((GPIOx)->CONHR & data_temp) | 1<<GPIO_Pin;  
+        (GPIOx)->CONHR = ((GPIOx)->CONHR & data_temp) | 1<<GPIO_Pin;  			//高位控制寄存器
         }
         else
         {

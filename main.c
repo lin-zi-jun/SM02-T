@@ -39,8 +39,10 @@
 #define  dio_L; GPIO_Write_Low(GPIOB0,0);
 #define  stb_L; GPIO_Write_Low(GPIOA0,0);
 
-#define  PWM_HIGH; GPIO_Write_High(GPIOA0,5);
-#define  PWM_LOW;  GPIO_Write_Low(GPIOA0,5);
+#define  PWM_HIGH1; GPIO_Write_High(GPIOA0,5);
+#define  PWM_LOW1;  GPIO_Write_Low(GPIOA0,5);
+#define  PWM_HIGH2; GPIO_Write_High(GPIOC0,0);
+#define  PWM_LOW2;  GPIO_Write_Low(GPIOC0,0);
 
 
 #define ROW_ONE  0x01
@@ -64,8 +66,11 @@ void delay_10ms(void){
     }
 }
 
-int num;
-U8_T bright_level = 100;
+volatile U8_T Flag = 0;
+
+#define MS_1  5000
+volatile U32_T bright_level1 = 9*MS_1;
+volatile U32_T bright_level2 = 9*MS_1;
 char light[8]={0x00,0x01,0x03,0x07,0x0F,0x1F,0x3F,0x7f};
 /* externs--------------------------------------------------------------------*/
 extern void APT32F101_init(void);
@@ -134,66 +139,85 @@ void tm1616show(U8_T light_data,U8_T row)
 	stb_H;
 }
 
+
 void PC_TO_MCU(void){
 	char c = 0;
 	char a = UARTRxByte(UART1,&c);
 	
 	if(a==TRUE){
 		a=FALSE;
-		uart1_printf("%c",c);
 		
 		switch(c)
 		{
 			case '0':
 				tm1616show(light[0],ROW_ONE);
 				tm1616show(light[0],ROW_TWO);
-				bright_level = 1;
+				bright_level1 = 1;
+				bright_level2 = 1;
 			break;
 			
 			case '1':
 				tm1616show(light[1],ROW_ONE);
-				bright_level = 10;
+				bright_level1 = 9*MS_1;
+				bright_level2 = MS_1;
 			break;
 			
 			case '2':
 				tm1616show(light[2],ROW_ONE);
-				bright_level = 30;
+				bright_level1 = 8*MS_1;
+				bright_level2 = 2*MS_1;
 			break;
 			
 			case '3':
 				tm1616show(light[3],ROW_ONE);
-				bright_level = 50;
+				bright_level1 = 7*MS_1;
+				bright_level2 = 3*MS_1;
 			break;
 			
 			case '4':
 				tm1616show(light[4],ROW_ONE);
-				bright_level = 60;
+				bright_level1 = 6*MS_1;
+				bright_level2 = 4*MS_1;
 			break;
 			
 			case '5':
 				tm1616show(light[5],ROW_ONE);
-				bright_level = 70;
+				bright_level1 = 5*MS_1;
+				bright_level2 = 5*MS_1;
 			break;
 			
 			case '6':
 				tm1616show(light[6],ROW_ONE);
-				bright_level = 80;
+				bright_level1 = 4*MS_1;
+				bright_level2 = 6*MS_1;
 			break;
 			
 			case '7':
 				tm1616show(light[7],ROW_ONE);
-				bright_level = 90;
+				bright_level1 = 3*MS_1;
+				bright_level2 = 7*MS_1;
 			break;
 			
 			case '8':
-			bright_level = 100;
+			bright_level1 = 2*MS_1;
+			bright_level2 = 8*MS_1;
 				
 			break;
+			
+			case '9':
+			bright_level1 = 1*MS_1;
+			bright_level2 = 9*MS_1;
+				
+			break;
+			
+
 			
 			
 			default:
 			break;
 		}
+		
+		uart1_printf("%c--V1:%d--V2:%d\r\n",c,bright_level1,bright_level2);
 		
 	}
 	
@@ -213,11 +237,34 @@ void EXTI_PC01_INIT(void){
 	EXI1_WakeUp_Enable(); 
 }
 
+
+
 void TIMER_INIT(void){
 	COUNT_DeInit();
-//	COUNTA_Init(55330,0,Period_H,DIV1,REPEAT_MODE,CARRIER_ON,OSP_LOW);
-//	COUNTA_Init(0,12771,Period_H,DIV1,REPEAT_MODE,CARRIER_ON,OSP_LOW);  //载波输出波形的初始极性选择0: 低1: 打开载波  1: 重复模式  
-	COUNTA_Init(25000 - (bright_level - 1) * 200,0,Period_H,DIV4,REPEAT_MODE,CARRIER_ON,OSP_LOW);
+	if(bright_level2==bright_level1){
+			COUNTA_Init(bright_level1,0,Period_H,DIV4,ONESHOT_MODE,CARRIER_ON,OSP_LOW);
+	}
+	else{
+
+			if(Flag==0){
+				if(bright_level2>bright_level1){
+					COUNTA_Init(bright_level1,0,Period_H,DIV4,ONESHOT_MODE,CARRIER_ON,OSP_LOW);
+				}
+				else{
+					COUNTA_Init(bright_level2,0,Period_H,DIV4,ONESHOT_MODE,CARRIER_ON,OSP_LOW);
+					
+				}
+			}else{
+				if(bright_level2>bright_level1){
+					COUNTA_Init(bright_level2 - bright_level1,0,Period_H,DIV4,ONESHOT_MODE,CARRIER_ON,OSP_LOW);
+				}else
+				{
+					COUNTA_Init(bright_level1 - bright_level2,0,Period_H,DIV4,ONESHOT_MODE,CARRIER_ON,OSP_LOW);
+				}	
+			}
+	
+	}
+	
 	COUNTA_Config(SW_STROBE,PENDREM_OFF,MATCHREM_OFF,REMSTAT_0,ENVELOPE_0);
 	COUNTA_Start();
 	COUNTA_Int_Enable();
@@ -225,9 +272,16 @@ void TIMER_INIT(void){
 
 void tim1_int_cb(void)
 {
-	  PWM_HIGH;
+	PWM_HIGH1;
+	delay_50us();	  
+	PWM_LOW1;  
+}
+
+void tim2_int_cb(void)
+{
+	  PWM_HIGH2;
 	  delay_50us();	  
-	  PWM_LOW;
+	  PWM_LOW2;
 }
 
 int main(void)
@@ -238,14 +292,15 @@ int main(void)
 	GPIO_Init(GPIOB0,0,0); 
 	GPIO_Init(GPIOB0,1,0); 
 	GPIO_Init(GPIOA0,0,0);
+	
 	GPIO_Init(GPIOA0,5,0);
+	GPIO_Init(GPIOC0,0,0);
+	
 	GPIO_Init(GPIOA0,4,0);
 	GPIO_Init(GPIOA0,6,0);
+	GPIO_Init(GPIOA0,7,0);
 	
 	EXTI_PC01_INIT();
-//	TIMER_INIT();
-
-	
 	
     while(1)
 	{

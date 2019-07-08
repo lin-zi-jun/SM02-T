@@ -94,6 +94,12 @@ extern volatile U8_T LED0_ICENDFlag;
 extern volatile U8_T LED0_IPENDFlag;
 extern volatile U8_T LED0_IKEYDETFlag;
 extern volatile U8_T I2C_mode;
+
+extern volatile U8_T bright_level1;
+extern volatile U8_T bright_level2 ;
+
+extern volatile U8_T Flag;
+
 /*************************************************************/
 //CORET Interrupt
 //EntryParameter:NONE
@@ -434,7 +440,6 @@ void EXI0IntHandler(void)
 //EntryParameter:NONE
 //ReturnValue:NONE
 /*************************************************************/
-int num=0;
 void EXI1IntHandler(void) 
 {
     // ISR content ...
@@ -442,9 +447,6 @@ void EXI1IntHandler(void)
 	{
 		SYSCON->EXICR = EXI_PIN1;
 		EXI_INTFlag[1]=1;
-		num++;
-//		uart1_printf("%d\r\n",num);
-		GPIO_Reverse(GPIOA0,6);
 		TIMER_INIT();			//	中断触发 初始化计数
 	}
 }
@@ -629,12 +631,41 @@ void EXI9to13IntHandler(void)
 //EntryParameter:NONE
 //ReturnValue:NONE
 /*************************************************************/
+
+
 void CNTAIntHandler(void) 
 {
-     tim1_int_cb();      //发出50us脉冲信号
-	 COUNTA_Stop();		 //停止计数器
+	
+	if(bright_level2==bright_level1){
+		
+		tim1_int_cb();
+		tim2_int_cb();  
+	}else{
+	
+		if(Flag==0){
+			if(bright_level2>bright_level1){
+				tim1_int_cb();
+			}else
+			{
+				tim2_int_cb();
+			}
+			
+			Flag = 1;
+			TIMER_INIT();
+			
+		}else {
+			Flag = 0;
+			if(bright_level2>bright_level1){
+				tim2_int_cb();
+			}else
+			{
+				tim1_int_cb();
+			}
+		}
+	}
+	
 	 CNTA_INTFlag=1;
-//	 GPIO_Reverse(GPIOA0,6);
+	 
 }
 
 /*************************************************************/

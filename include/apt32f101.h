@@ -478,6 +478,7 @@ extern	void delay_nms(unsigned int t);
  /** Function variable declarations  									    */
 extern void my_printf(const char *fmt, ...);
 
+
 #endif   /**< apt32f101_H */
 
 /******************* (C) COPYRIGHT 2016 APT Chip *****END OF FILE****/

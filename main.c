@@ -66,11 +66,20 @@ void delay_10ms(void){
     }
 }
 
-volatile U8_T Flag = 0;
+void delay_8_33ms(void){
+	volatile unsigned int i,j ,k=0;
+    j = 79* 176;
+    for ( i = 0; i < j; i++ )
+    {
+        k++;
+    }
+}
 
-#define MS_1  5000
-volatile U32_T bright_level1 = 9*MS_1;
-volatile U32_T bright_level2 = 9*MS_1;
+volatile U8_T Flag = 0;
+U8_T R_Flag = 0;
+#define MS_1  4000
+volatile U32_T bright_level1 = 8*MS_1;
+volatile U32_T bright_level2 = 8*MS_1;
 char light[8]={0x00,0x01,0x03,0x07,0x0F,0x1F,0x3F,0x7f};
 /* externs--------------------------------------------------------------------*/
 extern void APT32F101_init(void);
@@ -158,56 +167,54 @@ void PC_TO_MCU(void){
 			
 			case '1':
 				tm1616show(light[1],ROW_ONE);
-				bright_level1 = 9*MS_1;
+				bright_level1 =8*MS_1;
 				bright_level2 = MS_1;
 			break;
 			
 			case '2':
 				tm1616show(light[2],ROW_ONE);
-				bright_level1 = 8*MS_1;
+				bright_level1 = 7*MS_1;
 				bright_level2 = 2*MS_1;
 			break;
 			
 			case '3':
 				tm1616show(light[3],ROW_ONE);
-				bright_level1 = 7*MS_1;
+				bright_level1 = 6*MS_1;
 				bright_level2 = 3*MS_1;
 			break;
 			
 			case '4':
 				tm1616show(light[4],ROW_ONE);
-				bright_level1 = 6*MS_1;
+				bright_level1 = 5*MS_1;
 				bright_level2 = 4*MS_1;
 			break;
 			
 			case '5':
 				tm1616show(light[5],ROW_ONE);
-				bright_level1 = 5*MS_1;
+				bright_level1 = 4*MS_1;
 				bright_level2 = 5*MS_1;
 			break;
 			
 			case '6':
 				tm1616show(light[6],ROW_ONE);
-				bright_level1 = 4*MS_1;
+				bright_level1 = 3*MS_1;
 				bright_level2 = 6*MS_1;
 			break;
 			
 			case '7':
 				tm1616show(light[7],ROW_ONE);
-				bright_level1 = 3*MS_1;
+				bright_level1 = 2*MS_1;
 				bright_level2 = 7*MS_1;
 			break;
 			
 			case '8':
-			bright_level1 = 2*MS_1;
+			bright_level1 = 1*MS_1;
 			bright_level2 = 8*MS_1;
 				
 			break;
 			
 			case '9':
-			bright_level1 = 1*MS_1;
-			bright_level2 = 9*MS_1;
-				
+			R_Flag = 1;
 			break;
 			
 
@@ -221,6 +228,20 @@ void PC_TO_MCU(void){
 		
 	}
 	
+}
+
+void R_F(void)
+{
+	int i=0;
+	if(R_Flag==1){
+		for(i=1;i<9;i++)
+		{
+			bright_level1 = i*MS_1;
+			bright_level2 = (9-i)*MS_1;
+			delay_nms(30000);
+		}
+		R_Flag = 0;
+	}
 }
 
 void EXTI_PC01_INIT(void){
@@ -306,7 +327,8 @@ int main(void)
 	{
 		PC_TO_MCU();
 		GPIO_Reverse(GPIOA0,4);
-		delay_10ms();
+		delay_8_33ms();
+		 R_F();
 		
 	}
 }

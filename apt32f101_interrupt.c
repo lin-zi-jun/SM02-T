@@ -95,8 +95,8 @@ extern volatile U8_T LED0_IPENDFlag;
 extern volatile U8_T LED0_IKEYDETFlag;
 extern volatile U8_T I2C_mode;
 
-extern volatile U8_T bright_level1;
-extern volatile U8_T bright_level2 ;
+extern volatile U32_T bright_level1;
+extern volatile U32_T bright_level2 ;
 
 extern volatile U8_T Flag;
 

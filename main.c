@@ -232,15 +232,19 @@ void PC_TO_MCU(void){
 
 void R_F(void)
 {
-	int i=0;
-	if(R_Flag==1){
-		for(i=1;i<9;i++)
-		{
-			bright_level1 = i*MS_1;
-			bright_level2 = (9-i)*MS_1;
-			delay_nms(30000);
-		}
-		R_Flag = 0;
+	static int i=0;
+	for(i=1;i<255;i++)
+	{
+		bright_level1 = i*125;
+		bright_level2 = 32000-i*125;
+		delay_nms(1000);
+	}
+	
+	for(i=1;i<255;i++)
+	{
+		bright_level2 = i*125;
+		bright_level1 = 32000-i*125;
+		delay_nms(1000);
 	}
 }
 
@@ -305,6 +309,15 @@ void tim2_int_cb(void)
 	  PWM_LOW2;
 }
 
+void RLY_Test(void)
+{
+	GPIO_Write_High(GPIOB0,2);
+	GPIO_Write_High(GPIOB0,3);
+	
+	GPIO_Write_High(GPIOA0,5);
+	GPIO_Write_High(GPIOC0,0);
+}
+
 int main(void)
 {
 	APT32F101_init();
@@ -321,14 +334,20 @@ int main(void)
 	GPIO_Init(GPIOA0,6,0);
 	GPIO_Init(GPIOA0,7,0);
 	
+	GPIO_Init(GPIOB0,2,0); 
+	GPIO_Init(GPIOB0,3,0); 
+	
 	EXTI_PC01_INIT();
 	
     while(1)
 	{
-		PC_TO_MCU();
-		GPIO_Reverse(GPIOA0,4);
-		delay_8_33ms();
-		 R_F();
+//		PC_TO_MCU();
+//		GPIO_Reverse(GPIOA0,4);
+//		delay_8_33ms();
+		
+//		 RLY_Test();
+
+		R_F();
 		
 	}
 }

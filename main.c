@@ -235,15 +235,15 @@ void R_F(void)
 	static int i=0;
 	for(i=1;i<255;i++)
 	{
-		bright_level1 = i*125;
-		bright_level2 = 32000-i*125;
+		bright_level1 = i*100 +10000;
+//		bright_level2 = 32000-i*125;
 		delay_nms(1000);
 	}
 	
 	for(i=1;i<255;i++)
 	{
-		bright_level2 = i*125;
-		bright_level1 = 32000-i*125;
+//		bright_level2 = i*125;
+		bright_level1 = 20000-i*100 +70*125;
 		delay_nms(1000);
 	}
 }
@@ -318,6 +318,36 @@ void RLY_Test(void)
 	GPIO_Write_High(GPIOC0,0);
 }
 
+void ADC_INIT(void)
+{
+	ADC12_RESET_VALUE();
+	ADC12_CLK_CMD(ADC_CLK_CR , ENABLE); //使能 ADC 时钟
+	ADC12_Software_Reset(); //软件复位
+	ADC12_Configure_Mode(ADC12_12BIT , ADC12_3CYCLES , One_shot_mode , 2 , 1);
+	//12bit adc，采样周期 3 个，单次采样模式，adc 时钟 2div，采样 1 个通道
+	ADC12_ConversionChannel_Config(ADC12_ADCIN9,1);
+	//设置 ADCIN2 为第一个采样通道
+	ADC12_CMD(ENABLE); //使能 ADC
+	ADC12_ready_wait(); //等待 ADC 转换完成
+}
+
+float adc_dr;
+void ADC_Read(void)
+{
+	ADC->CMR[0]=ADC->CMR[0]| 0xf; //ADC 切换到放电通道
+	do
+	{
+		ADC12_Control(ADC12_START);
+		ADC12_EOC_wait();
+	}
+	while(ADC->DR!=0); //放电是否完成
+	ADC12_ConversionChannel_Config(ADC12_ADCIN9,1); //选择 ADCIN2 通道
+	ADC12_Control(ADC12_START); 
+	ADC12_EOC_wait();
+	adc_dr=ADC12_DATA_OUPUT(); //输出 ADC 采样值
+	uart1_printf("ADC:%0.2f\r\n",(adc_dr*3300/4096000-0.02));
+}
+
 int main(void)
 {
 	APT32F101_init();
@@ -329,15 +359,27 @@ int main(void)
 	
 	GPIO_Init(GPIOA0,5,0);
 	GPIO_Init(GPIOC0,0,0);
+	GPIO_PullHigh_Init(GPIOA0,5);
+	GPIO_PullHigh_Init(GPIOC0,0);
+	GPIO_Write_High(GPIOA0,5);
+	GPIO_Write_High(GPIOC0,0);
 	
 	GPIO_Init(GPIOA0,4,0);
-	GPIO_Init(GPIOA0,6,0);
+	GPIO_Init(GPIOA0,6,1);
+	GPIO_PullLow_Init(GPIOA0,6);
+	
 	GPIO_Init(GPIOA0,7,0);
 	
 	GPIO_Init(GPIOB0,2,0); 
 	GPIO_Init(GPIOB0,3,0); 
+	GPIO_PullHigh_Init(GPIOB0,2);
+	GPIO_PullHigh_Init(GPIOB0,3);
+	GPIO_Write_High(GPIOB0,2);
+	GPIO_Write_High(GPIOB0,3);
 	
 	EXTI_PC01_INIT();
+//	
+	ADC_INIT();
 	
     while(1)
 	{
@@ -347,7 +389,10 @@ int main(void)
 		
 //		 RLY_Test();
 
-		R_F();
+//		R_F();
+		
+		ADC_Read();
+		delay_nms(10000);
 		
 	}
 }

@@ -383,15 +383,15 @@ int main(void)
 	
     while(1)
 	{
-//		PC_TO_MCU();
-//		GPIO_Reverse(GPIOA0,4);
+		PC_TO_MCU();
+//		GPIO_Reverse(GPIOA0,5);
 //		delay_8_33ms();
 		
 //		 RLY_Test();
 
 //		R_F();
 		
-		ADC_Read();
+//		ADC_Read();
 		delay_nms(10000);
 		
 	}
